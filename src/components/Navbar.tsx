@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { GraduationCap, LayoutDashboard, LogOut, Plus, ChevronDown } from "lucide-react";
+import { GraduationCap, LayoutDashboard, LogOut, Plus, ChevronDown, FileText } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import CreateOfferModal from "./CreateOfferModal";
 
@@ -61,6 +61,18 @@ const Navbar = () => {
         <div className="navbar-links">
           <Link to="/"       className={linkClass("/")}>Accueil</Link>
           <Link to="/offers" className={linkClass("/offers")}>Offres</Link>
+
+          {user?.role === "student" && (
+            <Link to="/mes-candidatures" className={linkClass("/mes-candidatures")}>
+              Mes Candidatures
+            </Link>
+          )}
+
+          {true && (
+            <Link to="/candidatures-recues" className={linkClass("/candidatures-recues")}>
+              Candidatures reçues
+            </Link>
+          )}
 
           {/* ── Dropdown Entreprises ── */}
           <div 

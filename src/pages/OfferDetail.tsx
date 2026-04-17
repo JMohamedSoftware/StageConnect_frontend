@@ -1,7 +1,7 @@
 // Page de détail d'une offre - Design Premium (Match Netlify screenshots)
 
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
   MapPin, Clock, Tag, Globe, Calendar, Users, 
   ChevronRight, Share2, Heart, Send, Building2,
@@ -57,9 +57,12 @@ const OfferDetail = () => {
     // api.get(`/offers/${id}`).then(res => setOffer(res.data));
   }, [id]);
 
+  const navigate = useNavigate();
+
   const handleApply = () => {
     if (!user) return toast.error("Veuillez vous connecter pour postuler");
-    toast.success("Votre candidature a été envoyée !");
+    if (user.role !== 'student') return toast.error("Seuls les étudiants peuvent postuler");
+    navigate(`/offers/${id}/apply`);
   };
 
   return (

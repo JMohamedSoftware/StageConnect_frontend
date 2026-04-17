@@ -1,11 +1,25 @@
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search, MapPin, Clock, Filter, ArrowRight, Star, Plus } from 'lucide-react';
-const offersData = [
-  { id: 1, initials: 'GS', bgColor: 'var(--blue-600)', title: 'Développeur Fullstack React/Node', company: 'Google France', location: 'Paris, France', duration: '6 mois', category: 'Ingénierie', time: '2 heures' },
-  { id: 2, initials: 'MS', bgColor: 'var(--emerald)', title: 'UX/UI Designer Junior', company: 'Microsoft', location: 'Lyon (Remote)', duration: '4 mois', category: 'Design', time: '5 heures' },
-  { id: 3, initials: 'AM', bgColor: 'var(--yellow-600)', title: 'Data Analyst Intern', company: 'Amazon', location: 'Luxembourg', duration: '6 mois', category: 'Data', time: '1 jour' },
-];
+import api from '../api';
 
 const LandingPage = () => {
+  const [offers, setOffers] = useState<any[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch latest offers
+    api.get('/offers')
+      .then(res => setOffers(res.data.slice(0, 8)))
+      .catch(err => console.error("Erreur chargement des offres", err));
+  }, []);
+
+  const getInitials = (name: string) => name ? name.substring(0, 2).toUpperCase() : 'CO';
+  const getAvatarColor = (id: number) => {
+    const colors = ['var(--blue-600)', 'var(--emerald)', 'var(--yellow-600)', 'var(--purple-600)'];
+    return colors[id % colors.length];
+  };
+
   return (
     <>
     <div className="landing-root">
@@ -62,25 +76,33 @@ const LandingPage = () => {
             <p className="section-subtitle">Basé sur les tendances actuelles du marché</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <button className="nav-link-icon" style={{ color: 'var(--blue-600)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', paddingBottom: '8px' }}>
-              VOIR TOUT <ArrowRight size={18} />
-            </button>
+            <Link to="/offers" style={{ textDecoration: 'none' }}>
+              <button className="nav-link-icon" style={{ color: 'var(--blue-600)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', paddingBottom: '8px', border: 'none', background: 'none', cursor: 'pointer' }}>
+                VOIR TOUT <ArrowRight size={18} />
+              </button>
+            </Link>
           </div>
         </div>
 
         {/* Grid of Offers using native .featured-grid and .featured-card */}
         <div className="featured-grid">
-          {offersData.map((offer) => (
+          {offers.length === 0 ? (
+            <div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '2rem', color: 'var(--gray-500)' }}>
+              Aucune offre disponible pour le moment.
+            </div>
+          ) : offers.map((offer) => {
+            const companyName = offer.companyId?.company_name || offer.companyId?.name || 'Entreprise';
+            return (
             <div key={offer.id} className="featured-card" style={{ background: '#fff', display: 'flex', flexDirection: 'column', padding: '2rem' }}>
               <div className="featured-card-header" style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <div className="company-avatar-sm" style={{ backgroundColor: offer.bgColor, color: '#fff', fontSize: '1.25rem', width: '56px', height: '56px', borderRadius: 'var(--radius-xl)' }}>
-                  {offer.initials}
+                <div className="company-avatar-sm" style={{ backgroundColor: getAvatarColor(offer.id), color: '#fff', fontSize: '1.25rem', width: '56px', height: '56px', borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                  {getInitials(companyName)}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div className="offer-title-sm" style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--gray-900)', marginBottom: '4px' }}>{offer.title}</div>
-                  <div className="offer-company-sm" style={{ color: 'var(--blue-600)', fontWeight: 600 }}>{offer.company}</div>
+                  <div className="offer-company-sm" style={{ color: 'var(--blue-600)', fontWeight: 600 }}>{companyName}</div>
                 </div>
-                <button style={{ color: 'var(--gray-300)', background: 'none', border: 'none' }}>
+                <button style={{ color: 'var(--gray-300)', background: 'none', border: 'none', cursor: 'pointer' }}>
                   <Star size={22} />
                 </button>
               </div>
@@ -91,21 +113,29 @@ const LandingPage = () => {
               </div>
               
               <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '1.5rem', borderTop: '1px solid var(--gray-50)' }}>
-                <span className="nav-link-active" style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{offer.category}</span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 500 }}>{offer.time}</span>
+                <span className="nav-link-active" style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{offer.domain}</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 500 }}>{offer.contract_type}</span>
               </div>
 
               <div style={{ marginTop: '1.5rem' }}>
-                <button className="btn-gradient-sm" style={{ width: '100%', height: '48px', borderRadius: 'var(--radius-xl)', fontWeight: 700 }}>Consulter l'offre</button>
+                <button 
+                  onClick={() => navigate(`/offers/${offer.id}`)}
+                  className="btn-gradient-sm" 
+                  style={{ width: '100%', height: '48px', borderRadius: 'var(--radius-xl)', fontWeight: 700, cursor: 'pointer', border: 'none' }}
+                >
+                  Consulter l'offre
+                </button>
               </div>
             </div>
-          ))}
+          )})}
         </div>
 
         <div style={{ textAlign: 'center', marginTop: '4rem' }}>
-          <button className="btn-outline-blue" style={{ padding: '1rem 3rem', borderRadius: 'var(--radius-xl)', fontSize: '1rem' }}>
-            Explorer plus de stages
-          </button>
+          <Link to="/offers" style={{ textDecoration: 'none' }}>
+            <button className="btn-outline-blue" style={{ padding: '1rem 3rem', borderRadius: 'var(--radius-xl)', fontSize: '1rem', cursor: 'pointer' }}>
+              Explorer plus de stages
+            </button>
+          </Link>
         </div>
 
       </main>
