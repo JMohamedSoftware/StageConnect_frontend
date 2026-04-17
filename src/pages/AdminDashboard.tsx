@@ -137,11 +137,11 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleOfferAction = async (id: number, status: string) => {
+  const handleOfferAction = async (id: number | string, status: string) => {
     try {
       await api.patch(`/admin/offers/${id}`, { status });
       toast.success(`Offre ${status}`);
-      setPendingOffers(prev => prev.filter(o => (o as any)._id !== id && o.id !== id));
+      setOffers((prev: Offer[]) => prev.filter(o => (o as any)._id !== id && o.id !== id));
     } catch {
       toast.error("Action échouée");
     }

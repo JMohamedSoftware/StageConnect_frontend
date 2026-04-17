@@ -27,6 +27,7 @@ export interface Offer {
   description?: string;
   requirements?: string;
   status?: string;
+  contractType?: string;
 }
 
 export interface Application {
