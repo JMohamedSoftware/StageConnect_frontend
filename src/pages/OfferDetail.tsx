@@ -11,51 +11,20 @@ import { toast } from "sonner";
 import api from "../api";
 import { useAuth } from "../context/AuthContext";
 
-// --- Mock Data Match Screenshot ---
-const DUMMY_DETAIL = {
-  id: "650c...123",
-  title: "Développeur Frontend React (Stage PFE)",
-  company_name: "TechVision Innovate",
-  company_type: "Startup Tech",
-  location: "Tunis, Tunisie",
-  duration: "3 à 6 mois",
-  domain: "Informatique / IT",
-  workMode: "Hybride / Remote",
-  publishedAt: "12 Oct 2023",
-  deadline: "25 Oct 2023",
-  deadlineDiff: "J-3",
-  description: "Rejoignez TechVision Innovate, une startup en pleine croissance spécialisée dans les solutions SaaS pour l'éducation. Dans le cadre du développement de notre nouvelle plateforme collaborative, nous recherchons un(e) stagiaire Développeur Frontend React passionné(e) pour intégrer notre équipe technique.\n\nVous serez encadré(e) par notre Lead Tech et travaillerez en étroite collaboration avec les développeurs Backend, le Product Owner et les designers. C'est une excellente opportunité d'acquérir une expérience concrète sur un produit utilisé par des milliers d'utilisateurs.",
-  requirements: [
-    "Étudiant(e) en dernière année d'école d'ingénieur ou Master en Informatique (Stage PFE).",
-    "Solides connaissances en JavaScript moderne (ES6+) et TypeScript.",
-    "Une première expérience (projet académique ou personnel) avec React.js et son écosystème (Redux, React Query, etc.).",
-    "Sensibilité pour l'UI/UX et maîtrise du HTML/CSS (idéalement Tailwind CSS).",
-    "Curiosité, autonomie et forte envie d'apprendre dans un environnement stimulant."
-  ],
-  benefits: [
-    "Gratification de stage attractive selon profil.",
-    "Tickets restaurant pris en charge à 50%.",
-    "Mentorat par des développeurs Seniors.",
-    "Possibilité d'embauche (CDI) à l'issue du stage."
-  ],
-  companyInfo: {
-    sector: "Éditeur de logiciels (SaaS)",
-    size: "50 - 200 employés",
-    website: "www.techvision.example.com"
-  },
-  applicants: 42
-};
-
-const OfferDetail = () => {
-  const { id } = useParams();
-  const { user } = useAuth();
-  const [offer, setOffer] = useState(DUMMY_DETAIL); // Use dummy for preview
-  const [loading, setLoading] = useState(false);
+  const [offer, setOffer] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Logic to fetch real offer would go here
-    // api.get(`/offers/${id}`).then(res => setOffer(res.data));
+    api.get(`/offers/${id}`)
+      .then(res => setOffer(res.data))
+      .catch(() => toast.error("Erreur lors du chargement de l'offre"))
+      .finally(() => setLoading(false));
   }, [id]);
+
+  const navigate = useNavigate();
+
+  if (loading) return <div style={{ padding: '100px', textAlign: 'center' }}>Chargement...</div>;
+  if (!offer) return <div style={{ padding: '100px', textAlign: 'center' }}>Offre introuvable.</div>;
 
   const navigate = useNavigate();
 
@@ -79,6 +48,10 @@ const OfferDetail = () => {
       {/* --- Breadcrumbs --- */}
       <nav className="container" style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.875rem', color: 'var(--gray-500)' }}>
+          <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--gray-500)', fontWeight: 600, padding: 0 }}>
+            <ArrowLeft size={16} /> Retour
+          </button>
+          <span style={{ color: 'var(--gray-300)' }}>|</span>
           <Link to="/" style={{ color: 'var(--gray-400)' }}><Globe size={16} /></Link>
           <ChevronRight size={14} />
           <Link to="/offers" style={{ color: 'var(--gray-500)' }}>Offres</Link>
@@ -132,11 +105,11 @@ const OfferDetail = () => {
               display: 'flex', gap: '24px', padding: '20px', background: 'var(--gray-50)', borderRadius: '16px', fontSize: '0.875rem', border: '1px solid var(--gray-100)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--gray-600)' }}>
-                <Calendar size={18} /> Publié le: <strong style={{ color: 'var(--gray-900)' }}>{offer.publishedAt}</strong>
+                <Calendar size={18} /> Publié le: <strong style={{ color: 'var(--gray-900)' }}>{new Date(offer.createdAt).toLocaleDateString()}</strong>
               </div>
               <div style={{ width: '1px', background: 'var(--gray-200)' }}></div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--red-600)' }}>
-                <Info size={18} /> Date limite: <strong style={{ fontWeight: 800 }}>{offer.deadline} ({offer.deadlineDiff})</strong>
+                <Info size={18} /> Date limite: <strong style={{ fontWeight: 800 }}>{offer.deadline ? new Date(offer.deadline).toLocaleDateString() : 'Non spécifiée'}</strong>
               </div>
             </div>
           </div>
@@ -148,7 +121,7 @@ const OfferDetail = () => {
                 Description du stage
               </h2>
               <div style={{ whiteSpace: 'pre-line', color: 'var(--gray-600)', lineHeight: '1.8' }}>
-                {offer.description}
+                {offer.description || 'Acune description fournie.'}
               </div>
             </section>
 
@@ -157,32 +130,36 @@ const OfferDetail = () => {
                 Profil recherché
               </h2>
               <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {offer.requirements.map((req, i) => (
+                {(offer.requirements && offer.requirements.length > 0) ? offer.requirements.map((req: string, i: number) => (
                   <li key={i} style={{ display: 'flex', gap: '16px', color: 'var(--gray-700)', lineHeight: '1.6' }}>
                     <div style={{ color: 'var(--blue-600)', marginTop: '4px' }}><ChevronRight size={18} /></div>
                     {req}
                   </li>
-                ))}
+                )) : (
+                  <li style={{ color: 'var(--gray-500)' }}>Aucun prérequis spécifique n'a été renseigné.</li>
+                )}
               </ul>
             </section>
 
-            <section>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '24px' }}>
-                Ce que nous offrons
-              </h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-                {offer.benefits.map((benefit, i) => (
-                  <div key={i} style={{ 
-                    padding: '20px', background: 'var(--blue-50)', borderRadius: '16px', 
-                    display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--blue-800)',
-                    fontSize: '0.875rem', fontWeight: 600
-                  }}>
-                    <div style={{ width: '8px', height: '8px', background: 'var(--blue-600)', borderRadius: '50%' }}></div>
-                    {benefit}
-                  </div>
-                ))}
-              </div>
-            </section>
+            {offer.benefits && offer.benefits.length > 0 && (
+              <section>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '24px' }}>
+                  Ce que nous offrons
+                </h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                  {offer.benefits.map((benefit: string, i: number) => (
+                    <div key={i} style={{ 
+                      padding: '20px', background: 'var(--blue-50)', borderRadius: '16px', 
+                      display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--blue-800)',
+                      fontSize: '0.875rem', fontWeight: 600
+                    }}>
+                      <div style={{ width: '8px', height: '8px', background: 'var(--blue-600)', borderRadius: '50%' }}></div>
+                      {benefit}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         </div>
 
@@ -237,9 +214,9 @@ const OfferDetail = () => {
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.875rem', color: 'var(--gray-600)' }}>
-              <div style={{ display: 'flex', gap: '12px' }}><Building2 size={16} /> Secteur : {offer.companyInfo.sector}</div>
-              <div style={{ display: 'flex', gap: '12px' }}><Users size={16} /> Taille : {offer.companyInfo.size}</div>
-              <div style={{ display: 'flex', gap: '12px' }}><Globe size={16} /> <a href="#" style={{ color: 'var(--blue-600)' }}>{offer.companyInfo.website}</a></div>
+              <div style={{ display: 'flex', gap: '12px' }}><Building2 size={16} /> Secteur : {offer.companyId?.sector || offer.domain || 'Non spécifié'}</div>
+              <div style={{ display: 'flex', gap: '12px' }}><Users size={16} /> Entreprise : {offer.companyId?.company_name || offer.company_name}</div>
+              <div style={{ display: 'flex', gap: '12px' }}><MapPin size={16} /> Adresse : {offer.companyId?.city || offer.location}</div>
             </div>
           </div>
         </div>

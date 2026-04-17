@@ -20,15 +20,7 @@ interface DisplayOffer {
   time?: string;
 }
 
-// ─── Données fictives (fallback si le backend n'a pas d'offres) ───────────────
-const DUMMY_OFFERS: DisplayOffer[] = [
-  { id: 101, title: 'Développeur Frontend React/Next.js (H/F)', company_name: 'InnovateTech', location: 'Paris', duration: '6 mois', domain: 'IT & Dev', contractType: 'Stage', initials: 'IT', bgColor: 'var(--slate-900)', time: 'Il y a 2h' },
-  { id: 102, title: 'Assistant(e) Marketing Digital & Réseaux Sociaux', company_name: 'CreativeAgency', location: 'Lyon', duration: '4 mois', domain: 'Marketing', contractType: 'Stage', initials: 'CA', bgColor: 'var(--red-500)', time: "Aujourd'hui" },
-  { id: 103, title: 'UX/UI Designer Junior - Application Web RH', company_name: 'StageConnect HQ', location: 'Bordeaux', duration: '6 mois', domain: 'Design', contractType: 'Stage', initials: 'SC', bgColor: 'var(--blue-600)', time: 'Hier' },
-  { id: 104, title: 'Stage Data Analyst - Big Data & Machine Learning', company_name: 'DataSolutions', location: 'Toulouse', duration: '6 mois', domain: 'Data', contractType: 'Alternance', initials: 'DS', bgColor: 'var(--emerald)', time: 'Il y a 3 jours' },
-  { id: 105, title: 'Business Developer B2B - Secteur Tech', company_name: 'SalesPro', location: 'Nantes', duration: '6 mois', domain: 'Commercial', contractType: 'Stage', initials: 'SP', bgColor: 'var(--yellow-600)', time: 'Il y a 1 semaine' },
-  { id: 106, title: 'Chef de Projet Événementiel Sportif', company_name: 'EventMaster', location: 'Marseille', duration: '4 mois', domain: 'Management', contractType: 'Stage', initials: 'EM', bgColor: 'var(--indigo-600)', time: 'Il y a 1 semaine' },
-];
+// DUMMY_OFFERS removed
 
 // ─── Valeurs par défaut des filtres ───────────────────────────────────────────
 const DEFAULT_FILTERS = {
@@ -82,18 +74,8 @@ const Offers = () => {
   const isFiltered = filters.search || filters.domain !== "Domaine" ||
     filters.city !== "Ville" || filters.duration !== "Durée" || filters.type !== "Type de contrat";
 
-  // ── Données affichées : réelles si dispo, sinon dummy (filtrées localement) ──
-  const displayOffers: DisplayOffer[] = realOffers.length > 0
-    ? (realOffers as any[]).map(o => ({ ...o, company_name: o.company_name || o.companyId?.company_name }))
-    : DUMMY_OFFERS.filter(o => {
-        const q = filters.search.toLowerCase();
-        const matchSearch   = !q || (o.title + o.company_name).toLowerCase().includes(q);
-        const matchDomain   = filters.domain   === "Domaine"          || o.domain       === filters.domain;
-        const matchCity     = filters.city     === "Ville"            || o.location     === filters.city;
-        const matchDuration = filters.duration === "Durée"            || o.duration     === filters.duration;
-        const matchType     = filters.type     === "Type de contrat"  || o.contractType === filters.type;
-        return matchSearch && matchDomain && matchCity && matchDuration && matchType;
-      });
+  // ── Données affichées : réelles ──
+  const displayOffers: DisplayOffer[] = (realOffers as any[]).map(o => ({ ...o, company_name: o.company_name || o.companyId?.company_name }));
 
   return (
     <div className="page-wrap bg-slate-50" style={{ minHeight: '100vh', padding: '100px 0' }}>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { GraduationCap, Mail, Briefcase, User as UserIcon } from "lucide-react";
+import { GraduationCap, Mail, Briefcase, User as UserIcon, ArrowLeft } from "lucide-react";
 import api from "../api";
 import { useAuth } from "../context/AuthContext";
 
@@ -41,6 +41,12 @@ const Register = () => {
 
   return (
     <div className="register-page">
+      <button 
+        onClick={() => navigate(-1)} 
+        style={{ position: 'absolute', top: '24px', left: '24px', background: 'white', border: '1px solid var(--gray-200)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: 'var(--shadow-sm)', color: 'var(--gray-600)', zIndex: 10 }}
+      >
+        <ArrowLeft size={20} />
+      </button>
 
       {/* ── En-tête avec vague ─────────────────────────────── */}
       <div className="register-wave-header">

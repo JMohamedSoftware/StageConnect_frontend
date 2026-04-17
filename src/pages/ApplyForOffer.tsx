@@ -129,6 +129,9 @@ const ApplyForOffer = () => {
         
         {/* Header */}
         <div style={{ marginBottom: '32px' }}>
+          <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--gray-500)', fontWeight: 600, padding: 0, marginBottom: '16px' }}>
+            <ArrowLeft size={16} /> Retour à l'offre
+          </button>
           <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>Soumettre ma candidature</h1>
           <p style={{ color: '#475569', fontSize: '1rem' }}>Complétez les étapes ci-dessous pour finaliser votre candidature.</p>
         </div>

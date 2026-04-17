@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Briefcase, Mail, ArrowRight } from "lucide-react";
+import { Briefcase, Mail, ArrowRight, ArrowLeft } from "lucide-react";
 import api from "../api";
 import { useAuth } from "../context/AuthContext";
 
@@ -35,6 +35,12 @@ const Login = () => {
 
   return (
     <div className="login-page">
+      <button 
+        onClick={() => navigate(-1)} 
+        style={{ position: 'absolute', top: '24px', left: '24px', background: 'white', border: '1px solid var(--gray-200)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: 'var(--shadow-sm)', color: 'var(--gray-600)' }}
+      >
+        <ArrowLeft size={20} />
+      </button>
       <div className="login-card">
         <div className="login-card-bar" />
         <div className="login-card-body">
