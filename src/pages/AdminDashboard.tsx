@@ -16,7 +16,7 @@ const SIDEBAR_ITEMS = [
   { id: "dashboard",     icon: LayoutDashboard, label: "Tableau de bord" },
   { id: "offers",        icon: Briefcase,       label: "Offres de stage" },
   { id: "applications",  icon: FileText,        label: "Candidatures"    },
-  { id: "profile",       icon: UserIcon,        label: "Profil"          },
+  { id: "users",        icon: UserIcon,        label: "Profil"          },
   { id: "notifications", icon: Bell,            label: "Notifications"   },
   { id: "settings",      icon: Settings,        label: "Paramètres"      },
 ];
