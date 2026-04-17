@@ -49,7 +49,7 @@ export default function App() {
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/offers/:id" element={<><OfferDetail /><Footer /></>} />
           <Route path="/offers/:id/apply" element={<ProtectedRoute role="student"><ApplyForOffer /></ProtectedRoute>} />
-          <Route path="/candidatures-recues" element={<CandidaturesRecues />} />
+          <Route path="/candidatures-recues" element={<ProtectedRoute role="company"><CandidaturesRecues /></ProtectedRoute>} />
         </Routes>
         <Toaster position="bottom-right" richColors />
       </Router>

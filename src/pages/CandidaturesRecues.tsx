@@ -1,83 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import api from "../api";
+import { toast } from "sonner";
 import { 
   Search, SlidersHorizontal, Download, 
   Inbox, Clock, CheckCircle2, XCircle, 
   Eye, Check, X, Mail, RotateCcw
 } from "lucide-react";
 
-// Mock data based directly on the provided screenshot
-const MOCK_CANDIDATES = [
-  {
-    id: 1,
-    name: "Lucas Martin",
-    email: "lucas.martin@edu.fr",
-    avatar: "https://i.pravatar.cc/150?img=11",
-    speciality: "Dev. Web Full Stack",
-    university: "Paris-Saclay",
-    offer: "Stage Dev Full Stack",
-    date: "12 jan. 2025",
-    status: "pending"
-  },
-  {
-    id: 2,
-    name: "Amina Benali",
-    email: "amina.b@univ.fr",
-    avatar: "https://i.pravatar.cc/150?img=5",
-    speciality: "Data Science",
-    university: "Sorbonne Univ.",
-    offer: "Stage Data Analyst",
-    date: "10 jan. 2025",
-    status: "accepted"
-  },
-  {
-    id: 3,
-    name: "Karim Ouali",
-    email: "k.ouali@esiee.fr",
-    avatar: "https://i.pravatar.cc/150?img=12",
-    speciality: "Cybersécurité",
-    university: "ESIEE Paris",
-    offer: "Stage Sécurité IT",
-    date: "08 jan. 2025",
-    status: "rejected"
-  },
-  {
-    id: 4,
-    name: "Sofia Dupont",
-    email: "s.dupont@polytec.fr",
-    avatar: "https://i.pravatar.cc/150?img=9",
-    speciality: "UX/UI Design",
-    university: "École Polytec.",
-    offer: "Stage UX Designer",
-    date: "15 jan. 2025",
-    status: "pending"
-  },
-  {
-    id: 5,
-    name: "Théo Bernard",
-    email: "theo.b@insa.fr",
-    avatar: "https://i.pravatar.cc/150?img=13",
-    speciality: "Dev. Mobile",
-    university: "INSA Lyon",
-    offer: "Stage Dev Full Stack",
-    date: "07 jan. 2025",
-    status: "accepted"
-  },
-  {
-    id: 6,
-    name: "Nadia El Khoury",
-    email: "n.elkhoury@hec.fr",
-    avatar: "https://i.pravatar.cc/150?img=10",
-    speciality: "Marketing Digital",
-    university: "HEC Paris",
-    offer: "Stage Marketing",
-    date: "16 jan. 2025",
-    status: "pending"
-  }
-];
-
 const CandidaturesRecues = () => {
-  const [candidates, setCandidates] = useState(MOCK_CANDIDATES);
+  const [candidates, setCandidates] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCandidates();
+  }, []);
+
+  const fetchCandidates = async () => {
+    try {
+      const res = await api.get("/applications/company");
+      setCandidates(res.data);
+    } catch (err) {
+      toast.error("Impossible de charger les candidatures.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusStyle = (status: string) => {
     switch(status) {
@@ -91,8 +39,14 @@ const CandidaturesRecues = () => {
     }
   };
 
-  const handleAction = (id: number, newStatus: string) => {
-    setCandidates(candidates.map(c => c.id === id ? { ...c, status: newStatus } : c));
+  const handleAction = async (id: string, newStatus: string) => {
+    try {
+      await api.patch(`/applications/${id}/status`, { status: newStatus });
+      toast.success(`Candidature ${newStatus === 'accepted' ? 'acceptée' : 'refusée'}`);
+      setCandidates(candidates.map(c => c.id === id ? { ...c, status: newStatus } : c));
+    } catch {
+      toast.error("Erreur lors de la mise à jour.");
+    }
   };
 
   return (
@@ -298,11 +252,15 @@ const CandidaturesRecues = () => {
                     {/* Actions */}
                     <td style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'flex-end' }}>
                       {/* View CV - Always present */}
-                      <button style={{
-                        display: 'flex', alignItems: 'center', gap: '6px',
-                        background: '#F1F5F9', color: '#64748B', border: 'none',
-                        padding: '6px 12px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer'
-                      }}>
+                      <button 
+                        onClick={() => c.cv_url && window.open(c.cv_url, '_blank')}
+                        disabled={!c.cv_url}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '6px',
+                          background: '#F1F5F9', color: c.cv_url ? '#64748B' : '#CBD5E1', border: 'none',
+                          padding: '6px 12px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 500, cursor: c.cv_url ? 'pointer' : 'not-allowed'
+                        }}
+                      >
                         <Eye size={16} /> CV
                       </button>
 

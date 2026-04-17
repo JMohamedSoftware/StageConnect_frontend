@@ -68,7 +68,7 @@ const Navbar = () => {
             </Link>
           )}
 
-          {true && (
+          {user && (user.role === "company" || user.role === "admin") && (
             <Link to="/candidatures-recues" className={linkClass("/candidatures-recues")}>
               Candidatures reçues
             </Link>
@@ -109,24 +109,26 @@ const Navbar = () => {
                     Liste des entreprises
                   </Link>
                   
-                  <button
-                    onClick={() => {
-                      setEntreprisesDropdownOpen(false);
-                      setModalOpen(true);
-                    }}
-                    style={{
-                      width: '100%', display: 'flex', alignItems: 'center', gap: '8px',
-                      background: 'var(--indigo-50)', color: 'var(--indigo-600)',
-                      border: 'none', borderRadius: '8px',
-                      padding: '10px 14px', fontSize: '0.9rem', fontWeight: 600,
-                      cursor: 'pointer', transition: 'background 0.2s',
-                      marginTop: '4px'
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--indigo-600)'; e.currentTarget.style.color = '#fff'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'var(--indigo-50)'; e.currentTarget.style.color = 'var(--indigo-600)'; }}
-                  >
-                    <Plus size={16} /> Ajouter une offre
-                  </button>
+                  {(user?.role === "company" || user?.role === "admin") && (
+                    <button
+                      onClick={() => {
+                        setEntreprisesDropdownOpen(false);
+                        setModalOpen(true);
+                      }}
+                      style={{
+                        width: '100%', display: 'flex', alignItems: 'center', gap: '8px',
+                        background: 'var(--indigo-50)', color: 'var(--indigo-600)',
+                        border: 'none', borderRadius: '8px',
+                        padding: '10px 14px', fontSize: '0.9rem', fontWeight: 600,
+                        cursor: 'pointer', transition: 'background 0.2s',
+                        marginTop: '4px'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'var(--indigo-600)'; e.currentTarget.style.color = '#fff'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'var(--indigo-50)'; e.currentTarget.style.color = 'var(--indigo-600)'; }}
+                    >
+                      <Plus size={16} /> Ajouter une offre
+                    </button>
+                  )}
                 </div>
               </div>
             )}

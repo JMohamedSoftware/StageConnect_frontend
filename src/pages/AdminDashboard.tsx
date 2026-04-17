@@ -21,13 +21,7 @@ const SIDEBAR_ITEMS = [
   { icon: Settings,        label: "Paramètres",      active: false },
 ];
 
-// Données de démonstration pour les candidatures récentes
-const DEMO_RECENT_APPS = [
-  { title: "Développeur Frontend",  company: "TechCorp",     time: "Il y a 2h", status: "accepted" },
-  { title: "Data Scientist Intern", company: "Innovate AI",  time: "Hier",      status: "pending"  },
-  { title: "UX/UI Designer",        company: "DesignStudio", time: "24 Oct",    status: "rejected" },
-  { title: "DevOps Engineer",       company: "CloudSystems", time: "22 Oct",    status: "pending"  },
-];
+// Pas de données de démo ici, on utilisera les données réelles
 
 // Jours de la semaine pour l'axe X du graphique
 const WEEK_DAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
@@ -93,13 +87,26 @@ const ActivityChart = () => (
 const AdminDashboard = () => {
   const [stats,         setStats]         = useState<any>(null);
   const [pendingOffers, setPendingOffers] = useState<Offer[]>([]);
+  const [pendingCompanies, setPendingCompanies] = useState<User[]>([]);
   const [users,         setUsers]         = useState<User[]>([]);
 
   useEffect(() => {
     api.get("/admin/stats").then(res => setStats(res.data)).catch(() => {});
-    api.get("/admin/pending-offers").then(res => setPendingOffers(res.data)).catch(() => {});
+    api.get("/admin/pending-companies").then(res => setPendingCompanies(res.data)).catch(() => {});
     api.get("/admin/users").then(res => setUsers(res.data)).catch(() => {});
   }, []);
+
+  const handleApproveCompany = async (userId: string) => {
+    try {
+      await api.patch(`/admin/approve/${userId}`, { is_approved: true });
+      toast.success("Entreprise approuvée !");
+      setPendingCompanies(prev => prev.filter(u => u.id !== userId));
+      // Refresh user list if needed
+      api.get("/admin/users").then(res => setUsers(res.data));
+    } catch {
+      toast.error("Échec de l'approbation");
+    }
+  };
 
   const handleOfferAction = async (id: number, status: string) => {
     try {
@@ -188,45 +195,36 @@ const AdminDashboard = () => {
 
           <div className="recent-card">
             <div className="recent-card-header">
-              <span className="recent-card-title">Candidatures récentes</span>
-              <span className="recent-see-all">Voir tout</span>
+              <span className="recent-card-title">Validation des entreprises</span>
+              <span className="recent-see-all">{pendingCompanies.length} en attente</span>
             </div>
             <div className="recent-list">
-              {/* Candidatures de démonstration */}
-              {DEMO_RECENT_APPS.map((app, i) => (
-                <div key={i} className="recent-item">
-                  <div className="recent-thumb">{app.company[0]}</div>
-                  <div className="recent-info">
-                    <div className="recent-title">{app.title}</div>
-                    <div className="recent-company">{app.company}</div>
-                  </div>
-                  <div className="recent-right">
-                    <div className={`status-dot status-dot-${statusDotColor(app.status)}`}>
-                      {statusDotIcon(app.status)}
-                    </div>
-                    <span className="recent-time">{app.time}</span>
-                  </div>
+              {pendingCompanies.length === 0 ? (
+                <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8' }}>
+                  Aucune entreprise en attente de validation.
                 </div>
-              ))}
-              {/* Offres en attente de validation */}
-              {pendingOffers.slice(0, 2).map((offer, i) => (
-                <div key={`p${i}`} className="recent-item">
-                  <div className="recent-thumb">{offer.company_name?.[0] ?? "?"}</div>
-                  <div className="recent-info">
-                    <div className="recent-title">{offer.title}</div>
-                    <div className="recent-company">{offer.company_name}</div>
-                  </div>
-                  <div className="recent-right">
-                    <div className="status-dot status-dot-orange">○</div>
-                    <div style={{ display: "flex", gap: "0.25rem", marginTop: "0.2rem" }}>
-                      <button onClick={() => handleOfferAction(offer.id, "active")}
-                        className="btn-approve">✓</button>
-                      <button onClick={() => handleOfferAction(offer.id, "closed")}
-                        className="btn-reject">✕</button>
+              ) : (
+                pendingCompanies.map((comp, i) => (
+                  <div key={i} className="recent-item">
+                    <div className="recent-thumb" style={{ background: 'var(--indigo-50)', color: 'var(--indigo-600)' }}>
+                      {comp.company_name?.[0] || comp.name[0]}
+                    </div>
+                    <div className="recent-info">
+                      <div className="recent-title">{comp.company_name || comp.name}</div>
+                      <div className="recent-company">{comp.email}</div>
+                    </div>
+                    <div className="recent-right">
+                      <button 
+                        onClick={() => handleApproveCompany(comp.id)}
+                        className="btn-approve" 
+                        style={{ padding: '8px 12px', borderRadius: '8px' }}
+                      >
+                        ✓ Approuver
+                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>

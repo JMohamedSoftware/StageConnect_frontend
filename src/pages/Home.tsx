@@ -8,9 +8,9 @@ import type { Offer } from "../types";
 
 // ── Statistiques affichées dans le hero ──────────────────────
 const STATS = [
-  { icon: Briefcase,  value: "500+",   label: "Offres actives" },
-  { icon: Users,      value: "2 000+", label: "Étudiants inscrits" },
-  { icon: TrendingUp, value: "85%",    label: "Taux de placement" },
+  { icon: Briefcase,  value: "Offres",     label: "Stages variés" },
+  { icon: Users,      value: "Communauté",  label: "Large réseau" },
+  { icon: TrendingUp, value: "Succès",      label: "Accompagnement" },
 ];
 
 // ── Étapes "Comment ça marche" ───────────────────────────────
