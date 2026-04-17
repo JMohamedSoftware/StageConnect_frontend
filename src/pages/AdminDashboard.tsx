@@ -87,15 +87,43 @@ const ActivityChart = () => (
 const AdminDashboard = () => {
   const [activeTab,     setActiveTab]     = useState("dashboard");
   const [stats,         setStats]         = useState<any>(null);
-  const [pendingOffers, setPendingOffers] = useState<Offer[]>([]);
   const [pendingCompanies, setPendingCompanies] = useState<User[]>([]);
   const [users,         setUsers]         = useState<User[]>([]);
+  const [offers,        setOffers]        = useState<Offer[]>([]);
+  const [applications,  setApplications]  = useState<any[]>([]);
+  const [loading,       setLoading]       = useState(false);
 
   useEffect(() => {
-    api.get("/admin/stats").then(res => setStats(res.data)).catch(() => {});
-    api.get("/admin/pending-companies").then(res => setPendingCompanies(res.data)).catch(() => {});
-    api.get("/admin/users").then(res => setUsers(res.data)).catch(() => {});
-  }, []);
+    setLoading(true);
+    const fetchData = async () => {
+      try {
+        if (activeTab === "dashboard") {
+          const [sRes, pcRes, uRes] = await Promise.all([
+            api.get("/admin/stats"),
+            api.get("/admin/pending-companies"),
+            api.get("/admin/users")
+          ]);
+          setStats(sRes.data);
+          setPendingCompanies(pcRes.data);
+          setUsers(uRes.data);
+        } else if (activeTab === "offers") {
+          const res = await api.get("/offers");
+          setOffers(res.data);
+        } else if (activeTab === "applications") {
+          const res = await api.get("/applications/company");
+          setApplications(res.data);
+        } else if (activeTab === "profile" || activeTab === "notifications") {
+          const res = await api.get("/admin/users");
+          setUsers(res.data);
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [activeTab]);
 
   const handleApproveCompany = async (userId: number | string) => {
     try {
@@ -144,6 +172,33 @@ const AdminDashboard = () => {
     { label: "En attente",     value: stats?.applications?.pending ?? 0, iconCls: "astat-icon astat-icon-orange", Icon: Clock       },
   ];
 
+  const handleDeleteOffer = (id: any) => {
+    toast("Supprimer cette offre ?", {
+      action: {
+        label: "Supprimer",
+        onClick: async () => {
+          try {
+            await api.delete(`/offers/${id}`);
+            toast.success("Offre supprimée");
+            setOffers(prev => prev.filter(o => (o as any)._id !== id && o.id !== id));
+          } catch {
+            toast.error("Échec de la suppression");
+          }
+        },
+      },
+    });
+  };
+
+  const handleUpdateAppStatus = async (appId: any, status: string) => {
+    try {
+      await api.patch(`/applications/${appId}/status`, { status });
+      toast.success(`Candidature ${status}`);
+      setApplications(prev => prev.map(a => a.id === appId ? { ...a, status } : a));
+    } catch {
+      toast.error("Action échouée");
+    }
+  };
+
   return (
     <div className="admin-layout">
 
@@ -177,13 +232,9 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {activeTab !== "dashboard" ? (
-           <div style={{ padding: '40px', textAlign: 'center', background: '#fff', borderRadius: '16px', color: '#64748B', marginTop: '24px' }}>
-             <LayoutDashboard size={48} style={{ margin: '0 auto 16px', opacity: 0.2 }} />
-             <h2 style={{ fontSize: '1.25rem', color: '#0F172A', marginBottom: '8px' }}>Section en construction</h2>
-             <p>Le contenu de cet onglet sera disponible prochainement.</p>
-           </div>
-        ) : (
+        {loading ? (
+          <div style={{ padding: '100px', textAlign: 'center', color: '#64748B' }}>Chargement...</div>
+        ) : activeTab === "dashboard" ? (
           <>
             {/* Cartes de statistiques */}
             <div className="admin-stats-row">
@@ -199,82 +250,153 @@ const AdminDashboard = () => {
               ))}
             </div>
 
-        {/* Graphique + Candidatures récentes */}
-        <div className="admin-content-grid">
-          <ActivityChart />
+            {/* Graphique + Candidatures récentes */}
+            <div className="admin-content-grid">
+              <ActivityChart />
 
-          <div className="recent-card">
-            <div className="recent-card-header">
-              <span className="recent-card-title">Validation des entreprises</span>
-              <span className="recent-see-all">{pendingCompanies.length} en attente</span>
-            </div>
-            <div className="recent-list">
-              {pendingCompanies.length === 0 ? (
-                <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8' }}>
-                  Aucune entreprise en attente de validation.
+              <div className="recent-card">
+                <div className="recent-card-header">
+                  <span className="recent-card-title">Validation des entreprises</span>
+                  <span className="recent-see-all">{pendingCompanies.length} en attente</span>
                 </div>
-              ) : (
-                pendingCompanies.map((comp, i) => (
-                  <div key={i} className="recent-item">
-                    <div className="recent-thumb" style={{ background: 'var(--indigo-50)', color: 'var(--indigo-600)' }}>
-                      {comp.company_name?.[0] || comp.name[0]}
+                <div className="recent-list">
+                  {pendingCompanies.length === 0 ? (
+                    <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8' }}>
+                      Aucune entreprise en attente de validation.
                     </div>
-                    <div className="recent-info">
-                      <div className="recent-title">{comp.company_name || comp.name}</div>
-                      <div className="recent-company">{comp.email}</div>
-                    </div>
-                    <div className="recent-right">
-                      <button 
-                        onClick={() => handleApproveCompany((comp as any)._id || comp.id)}
-                        className="btn-approve" 
-                        style={{ padding: '8px 12px', borderRadius: '8px' }}
-                      >
-                        ✓ Approuver
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
+                  ) : (
+                    pendingCompanies.map((comp, i) => (
+                      <div key={i} className="recent-item">
+                        <div className="recent-thumb" style={{ background: 'var(--indigo-50)', color: 'var(--indigo-600)' }}>
+                          {comp.company_name?.[0] || comp.name[0]}
+                        </div>
+                        <div className="recent-info">
+                          <div className="recent-title">{comp.company_name || comp.name}</div>
+                          <div className="recent-company">{comp.email}</div>
+                        </div>
+                        <div className="recent-right">
+                          <button 
+                            onClick={() => handleApproveCompany((comp as any)._id || comp.id)}
+                            className="btn-approve" 
+                            style={{ padding: '8px 12px', borderRadius: '8px' }}
+                          >
+                            ✓ Approuver
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Tableau de gestion des utilisateurs */}
-        <div className="chart-card" style={{ marginTop: "1.5rem" }}>
-          <div className="chart-card-header">
-            <span className="chart-card-title">Gestion des utilisateurs</span>
-          </div>
-          <div style={{ overflowX: "auto" }}>
-            <table className="users-table">
-              <thead>
-                <tr>
-                  <th>Utilisateur</th>
-                  <th>Rôle</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u, i) => (
-                  <tr key={(u as any)._id || u.id || i}>
-                    <td>
-                      <div className="user-name-cell">{u.name}</div>
-                      <div className="user-email-cell">{u.email}</div>
-                    </td>
-                    <td><span className={roleClass(u.role)}>{u.role}</span></td>
-                    <td>
-                      {u.role !== "admin" && (
-                        <button onClick={() => handleDeleteUser((u as any)._id || u.id)} className="btn-delete">
-                          <Trash2 size={18} />
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {/* Tableau de gestion des utilisateurs */}
+            <div className="chart-card" style={{ marginTop: "1.5rem" }}>
+              <div className="chart-card-header">
+                <span className="chart-card-title">Gestion des utilisateurs</span>
+              </div>
+              <div style={{ overflowX: "auto" }}>
+                <table className="users-table">
+                  <thead>
+                    <tr>
+                      <th>Utilisateur</th>
+                      <th>Rôle</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((u, i) => (
+                      <tr key={(u as any)._id || u.id || i}>
+                        <td>
+                          <div className="user-name-cell">{u.name}</div>
+                          <div className="user-email-cell">{u.email}</div>
+                        </td>
+                        <td><span className={roleClass(u.role)}>{u.role}</span></td>
+                        <td>
+                          {u.role !== "admin" && (
+                            <button onClick={() => handleDeleteUser((u as any)._id || u.id)} className="btn-delete">
+                              <Trash2 size={18} />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
+          </>
+        ) : activeTab === "offers" ? (
+          <div className="chart-card">
+             <div className="chart-card-header">
+               <span className="chart-card-title">Toutes les offres de stage</span>
+             </div>
+             <div style={{ overflowX: "auto" }}>
+               <table className="users-table">
+                 <thead>
+                   <tr>
+                     <th>Offre</th>
+                     <th>Entreprise</th>
+                     <th>Lieu</th>
+                     <th>Action</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   {offers.length === 0 ? <tr><td colSpan={4} style={{ textAlign: 'center', padding: '20px' }}>Aucune offre trouvée</td></tr> : offers.map((o) => (
+                     <tr key={o.id}>
+                       <td><strong>{o.title}</strong><div style={{ fontSize: '0.75rem', opacity: 0.6 }}>{o.contractType || 'Stage'}</div></td>
+                       <td>{o.company_name}</td>
+                       <td>{o.location}</td>
+                       <td>
+                         <button onClick={() => handleDeleteOffer((o as any)._id || o.id)} className="btn-delete">
+                           <Trash2 size={18} />
+                         </button>
+                       </td>
+                     </tr>
+                   ))}
+                 </tbody>
+               </table>
+             </div>
           </div>
-        </>
+        ) : activeTab === "applications" ? (
+          <div className="chart-card">
+             <div className="chart-card-header">
+               <span className="chart-card-title">Toutes les candidatures</span>
+             </div>
+             <div style={{ overflowX: "auto" }}>
+               <table className="users-table">
+                 <thead>
+                   <tr>
+                     <th>Étudiant</th>
+                     <th>Offre</th>
+                     <th>Statut</th>
+                     <th>Action</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   {applications.length === 0 ? <tr><td colSpan={4} style={{ textAlign: 'center', padding: '20px' }}>Aucune candidature trouvée</td></tr> : applications.map((a) => (
+                     <tr key={a.id}>
+                       <td>{a.name}<div style={{ fontSize: '0.75rem', opacity: 0.6 }}>{a.student_email}</div></td>
+                       <td>{a.offer_title}</td>
+                       <td><span className={statusDotColor(a.status)} style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600, background: a.status === 'accepted' ? '#D1FAE5' : a.status === 'rejected' ? '#FEE2E2' : '#FEF3C7', color: a.status === 'accepted' ? '#059669' : a.status === 'rejected' ? '#B91C1C' : '#D97706' }}>{a.status}</span></td>
+                       <td>
+                         <div style={{ display: 'flex', gap: '8px' }}>
+                           <button onClick={() => handleUpdateAppStatus(a.id, 'accepted')} className="btn-approve" style={{ padding: '4px' }} title="Accepter"><CheckCircle size={16} /></button>
+                           <button onClick={() => handleUpdateAppStatus(a.id, 'rejected')} className="btn-delete" style={{ padding: '4px' }} title="Refuser"><Trash2 size={16} /></button>
+                         </div>
+                       </td>
+                     </tr>
+                   ))}
+                 </tbody>
+               </table>
+             </div>
+          </div>
+        ) : (
+          <div style={{ padding: '40px', textAlign: 'center', background: '#fff', borderRadius: '16px', color: '#64748B', marginTop: '24px' }}>
+             <LayoutDashboard size={48} style={{ margin: '0 auto 16px', opacity: 0.2 }} />
+             <h2 style={{ fontSize: '1.25rem', color: '#0F172A', marginBottom: '8px' }}>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
+             <p>C'est ici que vous gérerez vos {activeTab}.</p>
+          </div>
         )}
 
       </main>
