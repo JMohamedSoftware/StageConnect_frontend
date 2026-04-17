@@ -101,7 +101,7 @@ const AdminDashboard = () => {
     try {
       await api.patch(`/admin/approve/${userId}`, { is_approved: true });
       toast.success("Entreprise approuvée !");
-      setPendingCompanies(prev => prev.filter(u => String(u.id) !== String(userId)));
+      setPendingCompanies(prev => prev.filter(u => String((u as any)._id || u.id) !== String(userId)));
       // Refresh user list if needed
       api.get("/admin/users").then(res => setUsers(res.data));
     } catch {
@@ -113,7 +113,7 @@ const AdminDashboard = () => {
     try {
       await api.patch(`/admin/offers/${id}`, { status });
       toast.success(`Offre ${status}`);
-      setPendingOffers(prev => prev.filter(o => o.id !== id));
+      setPendingOffers(prev => prev.filter(o => (o as any)._id !== id && o.id !== id));
     } catch {
       toast.error("Action échouée");
     }
@@ -127,7 +127,7 @@ const AdminDashboard = () => {
           try {
             await api.delete(`/admin/users/${id}`);
             toast.success("Utilisateur supprimé");
-            setUsers(prev => prev.filter(u => u.id !== id));
+            setUsers(prev => prev.filter(u => (u as any)._id !== id && u.id !== id));
           } catch {
             toast.error("Échec de la suppression");
           }
@@ -225,7 +225,7 @@ const AdminDashboard = () => {
                     </div>
                     <div className="recent-right">
                       <button 
-                        onClick={() => handleApproveCompany(comp.id)}
+                        onClick={() => handleApproveCompany((comp as any)._id || comp.id)}
                         className="btn-approve" 
                         style={{ padding: '8px 12px', borderRadius: '8px' }}
                       >
@@ -254,8 +254,8 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {users.map(u => (
-                  <tr key={u.id}>
+                {users.map((u, i) => (
+                  <tr key={(u as any)._id || u.id || i}>
                     <td>
                       <div className="user-name-cell">{u.name}</div>
                       <div className="user-email-cell">{u.email}</div>
@@ -263,7 +263,7 @@ const AdminDashboard = () => {
                     <td><span className={roleClass(u.role)}>{u.role}</span></td>
                     <td>
                       {u.role !== "admin" && (
-                        <button onClick={() => handleDeleteUser(u.id)} className="btn-delete">
+                        <button onClick={() => handleDeleteUser((u as any)._id || u.id)} className="btn-delete">
                           <Trash2 size={18} />
                         </button>
                       )}
