@@ -82,7 +82,7 @@ const ApplyForOffer = () => {
     
     // For a real app, you'd also save the phone, studyLevel, specialty to their profile or application database.
     try {
-      await api.post("/applications/apply", data, {
+      await api.post("/applications", data, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       toast.success("Candidature envoyée avec succès !");
