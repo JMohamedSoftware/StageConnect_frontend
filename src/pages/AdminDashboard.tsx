@@ -96,11 +96,11 @@ const AdminDashboard = () => {
     api.get("/admin/users").then(res => setUsers(res.data)).catch(() => {});
   }, []);
 
-  const handleApproveCompany = async (userId: string) => {
+  const handleApproveCompany = async (userId: number | string) => {
     try {
       await api.patch(`/admin/approve/${userId}`, { is_approved: true });
       toast.success("Entreprise approuvée !");
-      setPendingCompanies(prev => prev.filter(u => u.id !== userId));
+      setPendingCompanies(prev => prev.filter(u => String(u.id) !== String(userId)));
       // Refresh user list if needed
       api.get("/admin/users").then(res => setUsers(res.data));
     } catch {

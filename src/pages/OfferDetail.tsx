@@ -36,7 +36,7 @@ const OfferDetail = () => {
     if (user.role !== 'student') return toast.error("Seuls les étudiants peuvent postuler");
     
     // Vérification du profil complet
-    if (!user.cv_url || !user.phone) {
+    if (!(user as any)?.cv_url || !(user as any)?.phone) {
       return toast.error("Désolé, vous devez compléter votre profil (CV et numéro de téléphone) dans votre tableau de bord avant de pouvoir postuler.", {
         duration: 5000,
       });
