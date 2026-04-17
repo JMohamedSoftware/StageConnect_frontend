@@ -20,8 +20,6 @@ interface DisplayOffer {
   time?: string;
 }
 
-// DUMMY_OFFERS removed
-
 // ─── Valeurs par défaut des filtres ───────────────────────────────────────────
 const DEFAULT_FILTERS = {
   search:   "",
@@ -78,7 +76,7 @@ const Offers = () => {
   const displayOffers: DisplayOffer[] = (realOffers as any[]).map(o => ({ ...o, company_name: o.company_name || o.companyId?.company_name }));
 
   return (
-    <div className="page-wrap bg-slate-50" style={{ minHeight: '100vh', padding: '100px 0' }}>
+    <div className="page-wrap bg-slate-50" style={{ minHeight: '100vh' }}>
 
       {/* ── En-tête ────────────────────────────────────────────────────────── */}
       <section className="container" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
@@ -157,12 +155,18 @@ const Offers = () => {
       {/* ── Filtres rapides ────────────────────────────────────────────────── */}
       <section className="container" style={{ marginBottom: '2.5rem' }}>
         <div style={{
-          background: '#fff', display: 'flex', alignItems: 'center',
-          gap: '12px', padding: '12px 20px', borderRadius: 'var(--radius-xl)',
-          boxShadow: 'var(--shadow-sm)', border: '1px solid var(--gray-100)',
-          flexWrap: 'wrap'
-        }}>
-          <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--gray-500)', whiteSpace: 'nowrap' }}>
+          background: '#fff', 
+          display: 'flex', 
+          alignItems: 'center',
+          gap: '12px', 
+          padding: '12px 20px', 
+          borderRadius: 'var(--radius-xl)',
+          boxShadow: 'var(--shadow-sm)', 
+          border: '1px solid var(--gray-100)',
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch',
+        }} className="no-scrollbar">
+          <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--gray-500)', whiteSpace: 'nowrap', marginRight: '8px' }}>
             Filtres rapides :
           </span>
 
@@ -231,22 +235,23 @@ const Offers = () => {
             <option>Alternance</option>
           </select>
 
-          {/* Bouton Réinitialiser — visible si un filtre actif */}
-          {isFiltered && (
-            <button
-              onClick={handleReset}
-              style={{
-                marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px',
-                background: 'none', border: '1.5px solid var(--gray-200)', borderRadius: 'var(--radius-lg)',
-                padding: '0 16px', height: '40px', cursor: 'pointer', color: 'var(--gray-500)',
-                fontSize: '0.875rem', fontWeight: 600, transition: 'all 0.2s'
-              }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--red-300)', e.currentTarget.style.color = 'var(--red-500)')}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--gray-200)', e.currentTarget.style.color = 'var(--gray-500)')}
-            >
-              <X size={14} /> Réinitialiser
-            </button>
-          )}
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {isFiltered && (
+              <button
+                onClick={handleReset}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  background: 'none', border: '1.5px solid var(--gray-200)', borderRadius: 'var(--radius-lg)',
+                  padding: '0 16px', height: '40px', cursor: 'pointer', color: 'var(--gray-500)',
+                  fontSize: '0.875rem', fontWeight: 600, transition: 'all 0.2s', whiteSpace: 'nowrap'
+                }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--red-300)', e.currentTarget.style.color = 'var(--red-500)')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--gray-200)', e.currentTarget.style.color = 'var(--gray-500)')}
+              >
+                <X size={14} /> Réinitialiser
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Tags des filtres actifs */}
