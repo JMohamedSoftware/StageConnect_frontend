@@ -32,8 +32,9 @@ const StudentDashboard = () => {
       await api.post("/student/cv", fd);
       toast.success("CV téléchargé !");
       await refreshUser();
-    } catch {
-      toast.error("Échec du téléchargement");
+    } catch (err: any) {
+      const msg = err.response?.data?.error || "Échec du téléchargement";
+      toast.error(msg);
     } finally {
       setUploading(false);
     }
