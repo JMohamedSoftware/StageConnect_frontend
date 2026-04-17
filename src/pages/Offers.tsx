@@ -73,7 +73,11 @@ const Offers = () => {
     filters.city !== "Ville" || filters.duration !== "Durée" || filters.type !== "Type de contrat";
 
   // ── Données affichées : réelles ──
-  const displayOffers: DisplayOffer[] = (realOffers as any[]).map(o => ({ ...o, company_name: o.company_name || o.companyId?.company_name }));
+  const displayOffers: DisplayOffer[] = (realOffers as any[]).map(o => ({ 
+    ...o, 
+    id: o._id || o.id, 
+    company_name: o.company_name || o.companyId?.company_name 
+  }));
 
   return (
     <div className="page-wrap bg-slate-50" style={{ minHeight: '100vh' }}>
