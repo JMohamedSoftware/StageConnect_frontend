@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 
-const API = axios.create({ baseURL: 'http://localhost:5000/api' });
+const API = axios.create({ baseURL: 'https://stageconnect-backend.onrender.com/api' });
 
 // Houni dima nab3thou el Token kenou mawjoud
 API.interceptors.request.use((req) => {
