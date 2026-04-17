@@ -51,11 +51,10 @@ const MesCandidatures = () => {
   useEffect(() => {
     api.get("/applications/student")
       .then(res => {
-        // If API returns empty, use mock to show the UI
-        setApplications(res.data.length > 0 ? res.data : MOCK_APPS);
+        setApplications(res.data);
       })
       .catch(() => {
-        setApplications(MOCK_APPS); // Fallback on error
+        toast.error("Impossible de charger vos candidatures.");
       })
       .finally(() => setLoading(false));
   }, []);
@@ -66,19 +65,19 @@ const MesCandidatures = () => {
   const accepted = applications.filter(a => a.status === 'accepted').length;
   const rejected = applications.filter(a => a.status === 'rejected').length;
   
-  // Fake mock numbers for 'annulées' to match the screenshot if we're using MOCK_APPS
-  const isMock = applications === MOCK_APPS;
-  const displayTotal = isMock ? 8 : total;
-  const displayPending = isMock ? 3 : pending;
-  const displayAccepted = isMock ? 2 : accepted;
-  const displayRejected = isMock ? 2 : rejected;
-  const displayCancelled = isMock ? 1 : 0;
+  const displayTotal = total;
+  const displayPending = pending;
+  const displayAccepted = accepted;
+  const displayRejected = rejected;
+  const displayCancelled = 0;
   const replyRate = displayTotal > 0 ? Math.round(((displayAccepted + displayRejected) / displayTotal) * 100) : 0;
-  const displayRate = isMock ? 62 : replyRate;
+  const displayRate = replyRate;
 
   // Filter applications
   const filteredApps = applications.filter(app => {
-    const matchesSearch = (app.offer_title + " " + app.company_name).toLowerCase().includes(searchTerm.toLowerCase());
+    const title = app.offer_title || app.offerId?.title || "";
+    const company = app.company_name || app.offerId?.companyId?.company_name || "";
+    const matchesSearch = (title + " " + company).toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterMode === "all" || app.status === filterMode;
     return matchesSearch && matchesStatus;
   });
