@@ -13,12 +13,12 @@ import type { User, Offer } from "../types";
 // ── Constantes ────────────────────────────────────────────────
 
 const SIDEBAR_ITEMS = [
-  { icon: LayoutDashboard, label: "Tableau de bord", active: true  },
-  { icon: Briefcase,       label: "Offres de stage", active: false },
-  { icon: FileText,        label: "Candidatures",    active: false },
-  { icon: UserIcon,        label: "Profil",          active: false },
-  { icon: Bell,            label: "Notifications",   active: false },
-  { icon: Settings,        label: "Paramètres",      active: false },
+  { id: "dashboard",     icon: LayoutDashboard, label: "Tableau de bord" },
+  { id: "offers",        icon: Briefcase,       label: "Offres de stage" },
+  { id: "applications",  icon: FileText,        label: "Candidatures"    },
+  { id: "profile",       icon: UserIcon,        label: "Profil"          },
+  { id: "notifications", icon: Bell,            label: "Notifications"   },
+  { id: "settings",      icon: Settings,        label: "Paramètres"      },
 ];
 
 // Pas de données de démo ici, on utilisera les données réelles
@@ -85,6 +85,7 @@ const ActivityChart = () => (
 
 // ── Composant principal ───────────────────────────────────────
 const AdminDashboard = () => {
+  const [activeTab,     setActiveTab]     = useState("dashboard");
   const [stats,         setStats]         = useState<any>(null);
   const [pendingOffers, setPendingOffers] = useState<Offer[]>([]);
   const [pendingCompanies, setPendingCompanies] = useState<User[]>([]);
@@ -137,10 +138,10 @@ const AdminDashboard = () => {
 
   // Statistiques affichées dans les 4 cartes
   const statCards = [
-    { label: "Offres totales", value: stats?.offers?.count       ?? "1,248", trend: "+12%", up: true,  iconCls: "astat-icon astat-icon-blue",   Icon: Briefcase   },
-    { label: "Candidatures",   value: stats?.applications?.count ?? "34",    trend: "+8%",  up: true,  iconCls: "astat-icon astat-icon-purple", Icon: Users       },
-    { label: "Acceptées",      value: 3,                                      trend: "+25%", up: true,  iconCls: "astat-icon astat-icon-green",  Icon: CheckCircle },
-    { label: "En attente",     value: pendingOffers.length || 12,             trend: "5%",   up: false, iconCls: "astat-icon astat-icon-orange", Icon: Clock       },
+    { label: "Offres totales", value: stats?.offers?.total       ?? 0, iconCls: "astat-icon astat-icon-blue",   Icon: Briefcase   },
+    { label: "Candidatures",   value: stats?.applications?.total ?? 0, iconCls: "astat-icon astat-icon-purple", Icon: Users       },
+    { label: "Acceptées",      value: stats?.applications?.accepted ?? 0, iconCls: "astat-icon astat-icon-green",  Icon: CheckCircle },
+    { label: "En attente",     value: stats?.applications?.pending ?? 0, iconCls: "astat-icon astat-icon-orange", Icon: Clock       },
   ];
 
   return (
@@ -150,7 +151,11 @@ const AdminDashboard = () => {
       <aside className="admin-sidebar">
         <nav className="sidebar-nav">
           {SIDEBAR_ITEMS.map((item, i) => (
-            <button key={i} className={`sidebar-link${item.active ? " active" : ""}`}>
+            <button 
+               key={i} 
+               onClick={() => setActiveTab(item.id)}
+               className={`sidebar-link${activeTab === item.id ? " active" : ""}`}
+            >
               <item.icon size={20} /> {item.label}
             </button>
           ))}
@@ -172,22 +177,27 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Cartes de statistiques */}
-        <div className="admin-stats-row">
-          {statCards.map((s, i) => (
-            <div key={i} className="astat-card">
-              <div className="astat-header">
-                <div className={s.iconCls}><s.Icon size={22} /></div>
-                <span className={`astat-trend ${s.up ? "astat-trend-up" : "astat-trend-down"}`}>
-                  {s.up ? <TrendingUp size={12} /> : <TrendingDown size={12} />} {s.trend}
-                </span>
-              </div>
-              <div className="astat-value">{s.value}</div>
-              <div className="astat-label">{s.label}</div>
-              <div className="astat-vs">vs last month</div>
+        {activeTab !== "dashboard" ? (
+           <div style={{ padding: '40px', textAlign: 'center', background: '#fff', borderRadius: '16px', color: '#64748B', marginTop: '24px' }}>
+             <LayoutDashboard size={48} style={{ margin: '0 auto 16px', opacity: 0.2 }} />
+             <h2 style={{ fontSize: '1.25rem', color: '#0F172A', marginBottom: '8px' }}>Section en construction</h2>
+             <p>Le contenu de cet onglet sera disponible prochainement.</p>
+           </div>
+        ) : (
+          <>
+            {/* Cartes de statistiques */}
+            <div className="admin-stats-row">
+              {statCards.map((s, i) => (
+                <div key={i} className="astat-card">
+                  <div className="astat-header">
+                    <div className={s.iconCls}><s.Icon size={22} /></div>
+                  </div>
+                  <div className="astat-value">{s.value}</div>
+                  <div className="astat-label">{s.label}</div>
+                  <div className="astat-vs" style={{ opacity: 0.5 }}>Depuis le lancement</div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
         {/* Graphique + Candidatures récentes */}
         <div className="admin-content-grid">
@@ -262,8 +272,10 @@ const AdminDashboard = () => {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
-        </div>
+        </>
+        )}
 
       </main>
     </div>
