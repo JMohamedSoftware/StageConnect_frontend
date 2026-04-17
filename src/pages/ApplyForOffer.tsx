@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { 
   CheckCircle2, Building2, MapPin, Calendar, 
-  ArrowRight, ArrowLeft, UploadCloud, FileText, Check, AlertCircle, X
+  ArrowRight, ArrowLeft, UploadCloud, FileText, Check, AlertCircle, X, Send
 } from "lucide-react";
 import api from "../api";
 import { useAuth } from "../context/AuthContext";
@@ -33,7 +33,7 @@ const ApplyForOffer = () => {
   const [formData, setFormData] = useState({
     fullName: user?.name || "",
     email: user?.email || "",
-    phone: user?.phone || "",
+    phone: (user as any)?.phone || "",
     studyLevel: "Master 1",
     specialty: "",
     motivation: ""

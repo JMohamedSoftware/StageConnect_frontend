@@ -11,6 +11,9 @@ import { toast } from "sonner";
 import api from "../api";
 import { useAuth } from "../context/AuthContext";
 
+const OfferDetail = () => {
+  const { id } = useParams();
+  const { user } = useAuth();
   const [offer, setOffer] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -26,7 +29,7 @@ import { useAuth } from "../context/AuthContext";
   if (loading) return <div style={{ padding: '100px', textAlign: 'center' }}>Chargement...</div>;
   if (!offer) return <div style={{ padding: '100px', textAlign: 'center' }}>Offre introuvable.</div>;
 
-  const navigate = useNavigate();
+  // Duplicate navigate removed
 
   const handleApply = () => {
     if (!user) return toast.error("Veuillez vous connecter pour postuler");
