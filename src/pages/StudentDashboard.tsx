@@ -15,13 +15,15 @@ const statusClass = (status: string) =>
   "badge-status badge-rejected";
 
 const StudentDashboard = () => {
+  const { user, refreshUser } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [uploading, setUploading] = useState(false);
-  const { user, refreshUser } = useAuth();
+  const [phone, setPhone] = useState(user?.phone || "");
 
   useEffect(() => {
     api.get("/student/applications").then(res => setApplications(res.data)).catch(() => {});
-  }, []);
+    if (user?.phone) setPhone(user.phone);
+  }, [user]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;
@@ -37,6 +39,16 @@ const StudentDashboard = () => {
       toast.error(msg);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleUpdateProfile = async () => {
+    try {
+      await api.patch("/student/profile", { phone });
+      toast.success("Profil mis à jour !");
+      await refreshUser();
+    } catch {
+      toast.error("Erreur lors de la mise à jour");
     }
   };
 
@@ -59,13 +71,34 @@ const StudentDashboard = () => {
                   <a href={user.cv_url} target="_blank" rel="noreferrer" className="cv-view-link">Voir</a>
                 </div>
               ) : (
-                <label className="cv-upload-label">
+                <label className="cv-upload-label" style={{ cursor: uploading ? 'not-allowed' : 'pointer' }}>
                   <Upload size={24} />
                   <span>{uploading ? "Envoi en cours..." : "Télécharger le CV (PDF)"}</span>
                   <input type="file" accept=".pdf" style={{ display: "none" }}
                     onChange={handleFileUpload} disabled={uploading} />
                 </label>
               )}
+            </div>
+
+            <div className="divider-top" style={{ marginTop: '24px' }}>
+              <div className="resume-label">Téléphone</div>
+              <input 
+                type="tel" 
+                placeholder="Votre numéro (ex: +216...)" 
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                style={{
+                  width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--gray-200)',
+                  marginBottom: '12px', outline: 'none', fontSize: '0.9rem'
+                }}
+              />
+              <button 
+                onClick={handleUpdateProfile}
+                className="btn btn-gradient-sm" 
+                style={{ width: '100%' }}
+              >
+                Enregistrer le profil
+              </button>
             </div>
           </div>
         </div>
@@ -78,15 +111,15 @@ const StudentDashboard = () => {
               {applications.map(app => (
                 <div key={app.id} className="application-item">
                   <div className="application-info">
-                    <div className="company-avatar-gray">{app.company_name[0]}</div>
+                    <div className="company-avatar-gray">{(app as any).company_name?.[0] || 'C'}</div>
                     <div>
-                      <div className="app-title">{app.offer_title}</div>
-                      <div className="app-company">{app.company_name}</div>
+                      <div className="app-title">{(app as any).offer_title}</div>
+                      <div className="app-company">{(app as any).company_name}</div>
                     </div>
                   </div>
                   <div className="application-status">
                     <span className={statusClass(app.status)}>{app.status}</span>
-                    <span className="app-date">{new Date(app.applied_at).toLocaleDateString()}</span>
+                    <span className="app-date">{new Date((app as any).applied_at || (app as any).createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
               ))}

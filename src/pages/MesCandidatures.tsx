@@ -8,39 +8,6 @@ import {
 import api from "../api";
 import type { Application } from "../types";
 
-// Mock data as fallback to mimic screenshot exactly if backend is empty
-const MOCK_APPS = [
-  {
-    id: 1,
-    offer_id: 101,
-    offer_title: "Stage Ingénieur Logiciel — IA",
-    company_name: "Google France",
-    location: "Paris, France",
-    duration: "6 mois",
-    status: "accepted",
-    applied_at: "2026-04-02T10:00:00Z"
-  },
-  {
-    id: 2,
-    offer_id: 102,
-    offer_title: "Développeur Frontend — React",
-    company_name: "Microsoft France",
-    location: "Issy-les-Moulineaux",
-    duration: "5 mois",
-    status: "pending",
-    applied_at: "2026-03-15T14:30:00Z"
-  },
-  {
-    id: 3,
-    offer_id: 103,
-    offer_title: "Stage Data Engineer — Cloud AWS",
-    company_name: "Amazon Web Services",
-    location: "Lyon, France",
-    duration: "4 mois",
-    status: "rejected",
-    applied_at: "2026-02-08T09:15:00Z"
-  }
-];
 
 const MesCandidatures = () => {
   const [applications, setApplications] = useState<any[]>([]);

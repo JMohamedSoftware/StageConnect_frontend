@@ -5,8 +5,10 @@ export interface User {
   name: string;
   email: string;
   role: "student" | "company" | "admin";
-  company_name?: string;
+  is_approved?: boolean;
   cv_url?: string;
+  phone?: string;
+  company_name?: string;
 }
 
 export interface AuthContextType {
