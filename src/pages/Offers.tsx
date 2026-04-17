@@ -175,7 +175,7 @@ const Offers = () => {
             className="form-input"
             value={filters.domain}
             onChange={e => handleFilterChange('domain', e.target.value)}
-            style={{ width: 'auto', minWidth: '150px', borderRadius: 'var(--radius-lg)', background: 'var(--gray-50)', border: '1.5px solid var(--gray-100)', height: '40px' }}
+            style={{ width: 'auto', minWidth: '150px', borderRadius: 'var(--radius-lg)', background: 'var(--gray-50)', border: '1.5px solid var(--gray-100)' }}
           >
             <option>Domaine</option>
             <option>IT & Dev</option>
@@ -193,7 +193,7 @@ const Offers = () => {
             className="form-input"
             value={filters.city}
             onChange={e => handleFilterChange('city', e.target.value)}
-            style={{ width: 'auto', minWidth: '150px', borderRadius: 'var(--radius-lg)', background: 'var(--gray-50)', border: '1.5px solid var(--gray-100)', height: '40px' }}
+            style={{ width: 'auto', minWidth: '150px', borderRadius: 'var(--radius-lg)', background: 'var(--gray-50)', border: '1.5px solid var(--gray-100)' }}
           >
             <option>Ville</option>
             <option>Paris</option>
@@ -211,7 +211,7 @@ const Offers = () => {
             className="form-input"
             value={filters.duration}
             onChange={e => handleFilterChange('duration', e.target.value)}
-            style={{ width: 'auto', minWidth: '130px', borderRadius: 'var(--radius-lg)', background: 'var(--gray-50)', border: '1.5px solid var(--gray-100)', height: '40px' }}
+            style={{ width: 'auto', minWidth: '130px', borderRadius: 'var(--radius-lg)', background: 'var(--gray-50)', border: '1.5px solid var(--gray-100)' }}
           >
             <option>Durée</option>
             <option>1 mois</option>
@@ -228,7 +228,7 @@ const Offers = () => {
             className="form-input"
             value={filters.type}
             onChange={e => handleFilterChange('type', e.target.value)}
-            style={{ width: 'auto', minWidth: '170px', borderRadius: 'var(--radius-lg)', background: 'var(--gray-50)', border: '1.5px solid var(--gray-100)', height: '40px' }}
+            style={{ width: 'auto', minWidth: '170px', borderRadius: 'var(--radius-lg)', background: 'var(--gray-50)', border: '1.5px solid var(--gray-100)' }}
           >
             <option>Type de contrat</option>
             <option>Stage</option>
