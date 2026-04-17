@@ -203,10 +203,17 @@ const OfferDetail = () => {
             </button>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
-              <button className="btn-outline-blue" style={{ height: '44px', fontSize: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <button 
+                onClick={() => toast.success("Offre sauvegardée dans vos favoris !")}
+                className="btn-outline-blue" style={{ height: '44px', fontSize: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                 <Heart size={16} /> Sauvegarder
               </button>
-              <button className="btn-outline-blue" style={{ height: '44px', fontSize: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast.success("Lien copié dans le presse-papier !");
+                }}
+                className="btn-outline-blue" style={{ height: '44px', fontSize: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                 <Share2 size={16} /> Partager
               </button>
             </div>

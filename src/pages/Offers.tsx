@@ -377,14 +377,7 @@ const Offers = () => {
               </div>
             )}
 
-            {/* Voir plus */}
-            {displayOffers.length > 0 && (
-              <div style={{ textAlign: 'center', marginTop: '60px' }}>
-                <button className="btn-outline-blue" style={{ padding: '12px 32px', borderRadius: 'var(--radius-xl)', fontWeight: 700 }}>
-                  Voir plus d'offres
-                </button>
-              </div>
-            )}
+            {/* Plus d'offres à venir peut-être ? */}
           </>
         )}
       </section>

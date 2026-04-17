@@ -5,6 +5,9 @@ import api from '../api';
 
 const LandingPage = () => {
   const [offers, setOffers] = useState<any[]>([]);
+  const [search, setSearch] = useState("");
+  const [domain, setDomain] = useState("Tous les Domaines");
+  const [city, setCity] = useState("Toutes les Villes");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,6 +16,20 @@ const LandingPage = () => {
       .then(res => setOffers(res.data.slice(0, 8)))
       .catch(err => console.error("Erreur chargement des offres", err));
   }, []);
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    if (domain !== "Tous les Domaines") params.set("domain", domain);
+    if (city !== "Toutes les Villes") params.set("city", city);
+    navigate(`/offers?${params.toString()}`);
+  };
+
+  const handleReset = () => {
+    setSearch("");
+    setDomain("Tous les Domaines");
+    setCity("Toutes les Villes");
+  };
 
   const getInitials = (name: string) => name ? name.substring(0, 2).toUpperCase() : 'CO';
   const getAvatarColor = (id: number) => {
@@ -40,9 +57,16 @@ const LandingPage = () => {
               type="text" 
               placeholder="Poste, entreprise, mots-clés..." 
               className="form-input"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               style={{ paddingLeft: '3.5rem', paddingRight: '12rem', width: '100%', height: '64px', borderRadius: 'var(--radius-xl)', fontSize: '1rem', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--gray-100)' }}
             />
-            <button className="btn-gradient" style={{ position: 'absolute', right: '8px', top: '8px', bottom: '8px', padding: '0 2rem', fontSize: '1rem', borderRadius: 'var(--radius-lg)' }}>
+            <button 
+              onClick={handleSearch}
+              className="btn-gradient" 
+              style={{ position: 'absolute', right: '8px', top: '8px', bottom: '8px', padding: '0 2rem', fontSize: '1rem', borderRadius: 'var(--radius-lg)' }}
+            >
               Rechercher
             </button>
           </div>
@@ -55,19 +79,35 @@ const LandingPage = () => {
           <div className="nav-link-icon" style={{ color: 'var(--gray-900)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', marginRight: '1rem' }}>
             <Filter size={20} /> FILTRER PAR
           </div>
-          <select className="form-input" style={{ width: 'auto', minWidth: '180px', padding: '0.625rem 2.5rem 0.625rem 1.25rem' }}>
+          <select 
+            className="form-input" 
+            value={domain}
+            onChange={(e) => setDomain(e.target.value)}
+            style={{ width: 'auto', minWidth: '180px', padding: '0.625rem 2.5rem 0.625rem 1.25rem' }}
+          >
             <option>Tous les Domaines</option>
             <option>Développement</option>
             <option>Design</option>
             <option>Marketing</option>
           </select>
-          <select className="form-input" style={{ width: 'auto', minWidth: '180px', padding: '0.625rem 2.5rem 0.625rem 1.25rem' }}>
+          <select 
+            className="form-input" 
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            style={{ width: 'auto', minWidth: '180px', padding: '0.625rem 2.5rem 0.625rem 1.25rem' }}
+          >
             <option>Toutes les Villes</option>
             <option>Paris</option>
             <option>Lyon</option>
             <option>Remote</option>
           </select>
-          <button className="btn-outline-blue" style={{ marginLeft: 'auto', padding: '0.5rem 1.5rem', fontSize: '0.875rem' }}>Réinitialiser</button>
+          <button 
+            onClick={handleReset}
+            className="btn-outline-blue" 
+            style={{ marginLeft: 'auto', padding: '0.5rem 1.5rem', fontSize: '0.875rem' }}
+          >
+            Réinitialiser
+          </button>
         </div>
 
         <div className="offers-header" style={{ marginBottom: '2.5rem', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
