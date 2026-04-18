@@ -76,7 +76,7 @@ const ApplyForOffer = () => {
   const handleSubmit = async () => {
     setSubmitting(true);
     const data = new FormData();
-    data.append("offer_id", offer._id || offer.id);
+    data.append("offer_id", id!);
     data.append("cv", cvFile!);
     data.append("cover_letter", formData.motivation);
     
